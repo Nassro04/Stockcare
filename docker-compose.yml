@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # Service Backend (NestJS)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: stockcare-backend
+    depends_on:
+      - db
+    ports:
+      - "${API_PORT:-3000}:3000"
+    environment:
+      - DB_HOST=db
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_DATABASE=${DB_DATABASE}
+      - API_PORT=${API_PORT}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRATION_TIME=${JWT_EXPIRATION_TIME}
+    command: sh -c "npm install && npm run start:dev"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules # Annule le montage pour les node_modules
+    networks:
+      - stockcare-net
+
+  # Service Frontend (Next.js)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: stockcare-frontend
+    ports:
+      - "3002:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:3000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - stockcare-net
+
+  # Service Base de données (PostgreSQL)
+  db:
+    image: postgres:15
+    container_name: stockcare-db
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_DATABASE}
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - stockcare-net
+
+networks:
+  stockcare-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
