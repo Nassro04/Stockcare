@@ -12,6 +12,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Terminal } from 'lucide-react';
+import { sendAlertEmail } from '@/lib/email-service';
+import api from '@/lib/api';
 
 const formSchema = z.object({
   username: z.string().min(2, {
@@ -41,6 +43,12 @@ export function LoginForm() {
     setError(null);
     try {
       await login(values);
+
+      // Fetch alerts and send email notification asynchronously
+      api.get('/dashboard/alerts').then((res) => {
+        sendAlertEmail(res.data, values.username);
+      }).catch(err => console.error("Failed to fetch alerts for email", err));
+
       router.push('/dashboard');
     } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
       console.error('Login failed:', err);

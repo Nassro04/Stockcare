@@ -64,17 +64,16 @@ export function StockExitForm() {
             form.reset();
             setTimeout(() => setSuccess(false), 3000);
         } catch (err: any) {
-            console.error('Stock dispatch failed detailed:', err.response?.data);
+            // Logs supprimés pour éviter la pollution de la console as requested
             let message = err.response?.data?.message || err.message || 'Une erreur est survenue';
 
             if (Array.isArray(message)) {
                 message = message.join(', ');
             }
 
-            if (message === 'No stock available for this product.') {
-                message = 'Stock insuffisant pour ce produit (Quantité: 0). Veuillez faire une entrée de stock d\'abord.';
-            } else if (message.includes('Not enough stock')) {
-                message = 'Stock insuffisant pour la quantité demandée.';
+            // Gestion prioritaire de l'erreur 400 (Stock insuffisant)
+            if (err.response?.status === 400) {
+                message = 'Stock insuffisant : La quantité demandée n\'est pas disponible.';
             }
 
             setError(message);
