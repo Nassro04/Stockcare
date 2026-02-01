@@ -46,7 +46,7 @@ export function AlertsDialog({ open, onOpenChange, alerts }: AlertsDialogProps) 
                 <DialogHeader>
                     <div className="flex items-center gap-2 text-amber-500 mb-2">
                         <Beaker className="h-6 w-6" />
-                        <span className="font-semibold tracking-wide text-sm uppercase">StockCare AI Prediction</span>
+                        <span className="font-semibold tracking-wide text-sm uppercase">StockCare Prediction</span>
                     </div>
                     <DialogTitle className="text-2xl font-bold flex items-center gap-2">
                         Attention Requise
